@@ -8,6 +8,7 @@ import {
   LogOut,
   Package,
   Truck,
+  Users,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -35,7 +36,11 @@ const navigation = [
   { name: 'Reports', href: '/dashboard/reports', icon: FileText },
 ]
 
-export function AppSidebar({ userEmail }: { userEmail: string }) {
+const managementNavigation = [
+  { name: 'Users', href: '/dashboard/users', icon: Users, roles: ['admin', 'manager'] },
+]
+
+export function AppSidebar({ userEmail, userRole }: { userEmail: string; userRole: string }) {
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -80,6 +85,28 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {(userRole === 'admin' || userRole === 'manager') && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Management</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {managementNavigation
+                  .filter((item) => item.roles.includes(userRole))
+                  .map((item) => (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton asChild tooltip={item.name}>
+                        <a href={item.href}>
+                          <item.icon />
+                          <span>{item.name}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

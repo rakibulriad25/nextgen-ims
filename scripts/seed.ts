@@ -26,15 +26,31 @@ async function seed() {
     ])
     console.log('Cleared existing data')
 
-    // Create admin user
-    const hashedPassword = await bcrypt.hash('admin123', 10)
+    // Create users with different roles
+    const hashedPassword = await bcrypt.hash('password123', 10)
+
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@example.com',
       password: hashedPassword,
       role: 'admin',
     })
-    console.log('Created admin user')
+
+    const manager = await User.create({
+      name: 'Manager User',
+      email: 'manager@example.com',
+      password: hashedPassword,
+      role: 'manager',
+    })
+
+    const staff = await User.create({
+      name: 'Staff User',
+      email: 'staff@example.com',
+      password: hashedPassword,
+      role: 'staff',
+    })
+
+    console.log('Created users (admin, manager, staff)')
 
     // Create categories
     const categories = await Category.create([
@@ -182,7 +198,7 @@ async function seed() {
         transactionType: 'stock-out',
         quantity: 10,
         reason: 'Sales order #1001',
-        performedBy: admin._id,
+        performedBy: manager._id,
         date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
         balanceAfter: 50,
       },
@@ -191,7 +207,7 @@ async function seed() {
         transactionType: 'stock-in',
         quantity: 10,
         reason: 'Initial stock',
-        performedBy: admin._id,
+        performedBy: manager._id,
         date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
         balanceAfter: 10,
       },
@@ -200,7 +216,7 @@ async function seed() {
         transactionType: 'stock-out',
         quantity: 7,
         reason: 'Office setup',
-        performedBy: admin._id,
+        performedBy: staff._id,
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         balanceAfter: 3,
       },
@@ -209,10 +225,11 @@ async function seed() {
 
     console.log('\n=== Seed completed successfully! ===')
     console.log('\nLogin credentials:')
-    console.log('Email: admin@example.com')
-    console.log('Password: admin123')
+    console.log('Admin - Email: admin@example.com, Password: password123')
+    console.log('Manager - Email: manager@example.com, Password: password123')
+    console.log('Staff - Email: staff@example.com, Password: password123')
     console.log('\nDatabase contains:')
-    console.log('- 1 admin user')
+    console.log('- 3 users (1 admin, 1 manager, 1 staff)')
     console.log(`- ${categories.length} categories`)
     console.log(`- ${suppliers.length} suppliers`)
     console.log(`- ${products.length} products`)

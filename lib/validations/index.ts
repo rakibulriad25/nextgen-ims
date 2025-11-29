@@ -42,3 +42,10 @@ export const transactionSchema = z.object({
   reason: z.string().min(1, 'Reason is required'),
   notes: z.string().optional(),
 })
+
+export const userSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters').optional(),
+  role: z.enum(['manager', 'staff']),
+})

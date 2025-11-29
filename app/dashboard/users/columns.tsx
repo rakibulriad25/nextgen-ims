@@ -4,20 +4,18 @@ import { Button } from '@/components/ui/button'
 import type { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, Trash2 } from 'lucide-react'
 
-export type Supplier = {
+export type User = {
   _id: string
   name: string
-  contactPerson: string
   email: string
-  phone: string
-  address: string
-  status: 'active' | 'inactive'
+  role: 'admin' | 'manager' | 'staff'
+  createdAt: string
 }
 
 export const createColumns = (
-  onEdit: (supplier: Supplier) => void,
+  onEdit: (user: User) => void,
   onDelete: (id: string) => void,
-): ColumnDef<Supplier>[] => [
+): ColumnDef<User>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => (
@@ -27,29 +25,35 @@ export const createColumns = (
     ),
   },
   {
-    accessorKey: 'contactPerson',
-    header: 'Contact Person',
-  },
-  {
     accessorKey: 'email',
     header: 'Email',
   },
   {
-    accessorKey: 'phone',
-    header: 'Phone',
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: 'role',
+    header: 'Role',
     cell: ({ row }) => {
-      const status = row.getValue('status') as string
+      const role = row.getValue('role') as string
       return (
         <span
-          className={`px-2 py-1 text-xs rounded-full ${status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
+          className={`px-2 py-1 text-xs rounded-full ${
+            role === 'admin'
+              ? 'bg-purple-100 text-purple-800'
+              : role === 'manager'
+                ? 'bg-blue-100 text-blue-800'
+                : 'bg-gray-100 text-gray-800'
+          }`}
         >
-          {status}
+          {role}
         </span>
       )
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+    cell: ({ row }) => {
+      const date = new Date(row.getValue('createdAt'))
+      return date.toLocaleDateString()
     },
   },
   {

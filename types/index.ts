@@ -53,6 +53,10 @@ export interface ITransaction extends Document {
   balanceAfter: number
 }
 
+export interface IPopulatedTransaction extends Omit<ITransaction, 'product'> {
+  product: IProduct
+}
+
 export interface IWarehouse extends Document {
   name: string
   location: string
