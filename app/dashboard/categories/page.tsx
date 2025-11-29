@@ -1,5 +1,6 @@
 'use client'
 
+import { ImageUpload } from '@/components/image-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -21,7 +22,8 @@ import {
 } from '@/lib/actions/category'
 import { categorySchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edit, Plus, Trash2 } from 'lucide-react'
+import { Edit, FolderIcon, Plus, Trash2 } from 'lucide-react'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -31,13 +33,14 @@ type CategoryForm = z.infer<typeof categorySchema>
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<
-    { _id: string; name: string; description: string }[]
+    { _id: string; name: string; description: string; iconUrl?: string }[]
   >([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<{
     _id: string
     name: string
     description: string
+    iconUrl?: string
   } | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -45,6 +48,8 @@ export default function CategoriesPage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CategoryForm>({
     resolver: zodResolver(categorySchema),
@@ -132,7 +137,26 @@ export default function CategoriesPage() {
               <TableBody>
                 {categories.map((category) => (
                   <TableRow key={category._id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        {category.iconUrl ? (
+                          <div className="relative w-8 h-8 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                            <Image
+                              src={category.iconUrl}
+                              alt={category.name}
+                              fill
+                              className="object-cover"
+                              unoptimized={category.iconUrl.startsWith('/uploads/')}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <FolderIcon className="h-4 w-4 text-gray-400" />
+                          </div>
+                        )}
+                        <span>{category.name}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{category.description}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
@@ -174,6 +198,12 @@ export default function CategoriesPage() {
                 <p className="text-sm text-red-500">{errors.description.message}</p>
               )}
             </div>
+            <ImageUpload
+              label="Category Icon (Optional)"
+              value={watch('iconUrl')}
+              onChange={(url) => setValue('iconUrl', url)}
+              description="Upload an icon to visually represent this category"
+            />
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel

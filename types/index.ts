@@ -3,7 +3,7 @@ import type { Document } from 'mongoose'
 export interface IUser extends Document {
   name: string
   email: string
-  password: string
+  password?: string // Optional for OAuth users
   role: 'admin' | 'manager' | 'staff'
   createdAt: Date
 }
@@ -29,6 +29,7 @@ export interface IProduct extends Document {
 export interface ICategory extends Document {
   name: string
   description: string
+  iconUrl?: string
   createdAt: Date
 }
 
@@ -38,6 +39,7 @@ export interface ISupplier extends Document {
   email: string
   phone: string
   address: string
+  logoUrl?: string
   status: 'active' | 'inactive'
   createdAt: Date
 }

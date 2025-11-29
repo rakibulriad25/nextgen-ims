@@ -1,5 +1,6 @@
 'use client'
 
+import { ImageUpload } from '@/components/image-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -172,6 +173,13 @@ export default function SuppliersPage() {
               <Input id="address" {...register('address')} />
               {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
             </div>
+
+            <ImageUpload
+              label="Supplier Logo (Optional)"
+              value={watch('logoUrl')}
+              onChange={(url) => setValue('logoUrl', url)}
+              description="Upload a logo to represent this supplier"
+            />
 
             <div className="space-y-2">
               <Label>Status</Label>

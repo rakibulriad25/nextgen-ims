@@ -24,6 +24,7 @@ export const productSchema = z.object({
 export const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
+  iconUrl: z.string().optional(),
 })
 
 export const supplierSchema = z.object({
@@ -32,6 +33,7 @@ export const supplierSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone is required'),
   address: z.string().min(1, 'Address is required'),
+  logoUrl: z.string().optional(),
   status: z.enum(['active', 'inactive']),
 })
 

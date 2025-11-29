@@ -2,7 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, Edit, Trash2 } from 'lucide-react'
+import { ArrowUpDown, Building2, Edit, Trash2 } from 'lucide-react'
+import Image from 'next/image'
 
 export type Supplier = {
   _id: string
@@ -11,6 +12,7 @@ export type Supplier = {
   email: string
   phone: string
   address: string
+  logoUrl?: string
   status: 'active' | 'inactive'
 }
 
@@ -25,6 +27,29 @@ export const createColumns = (
         Name <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: ({ row }) => {
+      const supplier = row.original
+      return (
+        <div className="flex items-center gap-3">
+          {supplier.logoUrl ? (
+            <div className="relative w-8 h-8 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+              <Image
+                src={supplier.logoUrl}
+                alt={supplier.name}
+                fill
+                className="object-cover"
+                unoptimized={supplier.logoUrl.startsWith('/uploads/')}
+              />
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <Building2 className="h-4 w-4 text-gray-400" />
+            </div>
+          )}
+          <span>{supplier.name}</span>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'contactPerson',

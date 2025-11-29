@@ -1,9 +1,15 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
 import { formatCurrency } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, Edit, PackagePlus, Trash2 } from 'lucide-react'
+import { ArrowUpDown, Edit, ImageIcon, PackagePlus, Trash2 } from 'lucide-react'
+import Image from 'next/image'
 
 export type Product = {
   _id: string
@@ -13,6 +19,7 @@ export type Product = {
   currentStock: number
   reorderLevel: number
   unitPrice: number
+  imageUrl?: string
   status: string
 }
 
@@ -48,6 +55,36 @@ export const createColumns = (
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
+    },
+    cell: ({ row }) => {
+      const product = row.original
+      if (product.imageUrl) {
+        return (
+          <HoverCard openDelay={150} closeDelay={150}>
+            <HoverCardTrigger asChild>
+              <div className="flex items-center gap-2 cursor-pointer">
+                <ImageIcon className="h-4 w-4 text-gray-400" />
+                <span>{product.name}</span>
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80">
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold">{product.name}</h4>
+                <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50">
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-contain"
+                    unoptimized={product.imageUrl.startsWith('/uploads/')}
+                  />
+                </div>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        )
+      }
+      return <span>{product.name}</span>
     },
   },
   {

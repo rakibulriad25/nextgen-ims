@@ -1,5 +1,6 @@
 'use client'
 
+import { ImageUpload } from '@/components/image-upload'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -232,6 +233,18 @@ export function ProductDialog({ open, onClose, product, onSuccess }: ProductDial
               )}
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="barcode">Barcode (Optional)</Label>
+            <Input id="barcode" {...register('barcode')} />
+          </div>
+
+          <ImageUpload
+            label="Product Image (Optional)"
+            value={watch('imageUrl')}
+            onChange={(url) => setValue('imageUrl', url)}
+            description="Upload a product image to help identify it easily"
+          />
 
           <div className="space-y-2">
             <Label>Status</Label>

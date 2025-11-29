@@ -7,6 +7,7 @@ const SupplierSchema = new Schema<ISupplier>({
   email: { type: String, required: true },
   phone: { type: String, required: true },
   address: { type: String, required: true },
+  logoUrl: String,
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   createdAt: { type: Date, default: Date.now },
 })
