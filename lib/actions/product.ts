@@ -1,12 +1,17 @@
 'use server'
 
 import { connectDB } from '@/lib/db/mongoose'
+import Category from '@/lib/models/Category'
 import Product from '@/lib/models/Product'
+import Supplier from '@/lib/models/Supplier'
 import { productSchema } from '@/lib/validations'
 import { revalidatePath } from 'next/cache'
 
 export async function getProducts() {
   await connectDB()
+  // Ensure models are registered
+  Category
+  Supplier
   const products = await Product.find()
     .populate('category')
     .populate('supplier')
@@ -17,6 +22,9 @@ export async function getProducts() {
 
 export async function getProduct(id: string) {
   await connectDB()
+  // Ensure models are registered
+  Category
+  Supplier
   const product = await Product.findById(id).populate('category').populate('supplier').lean()
   return JSON.parse(JSON.stringify(product))
 }

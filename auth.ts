@@ -59,17 +59,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider === 'google') {
         await connectDB()
 
-        // Check if user exists
-        let existingUser = await User.findOne({ email: user.email })
+        // Check if user exists in database
+        const existingUser = await User.findOne({ email: user.email })
 
         if (!existingUser) {
-          // Create new user from Google OAuth
-          existingUser = await User.create({
-            name: user.name,
-            email: user.email,
-            role: 'staff', // Default role for OAuth users
-            // No password for OAuth users
-          })
+          // Reject sign-in for users not in the system
+          // Only existing staff/manager/admin can sign in via Google
+          return false
         }
 
         // Add user ID and role to the user object
@@ -109,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: '/login',
+    error: '/access-denied',
   },
   session: {
     strategy: 'jwt',
