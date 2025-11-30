@@ -126,7 +126,7 @@ async function getDashboardData(userRole: string) {
 
   // Inventory value by category
   const categoryValues: Record<string, number> = {}
-  products.forEach((p: { category: { name: string } | null; currentStock: number; unitPrice: number }) => {
+  products.forEach((p: any) => {
     const categoryName = p.category?.name || 'Uncategorized'
     if (!categoryValues[categoryName]) {
       categoryValues[categoryName] = 0
