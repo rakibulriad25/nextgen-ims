@@ -2,17 +2,25 @@ import { auth } from '@/auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { connectDB } from '@/lib/db/mongoose'
 import Product from '@/lib/models/Product'
+import Supplier from '@/lib/models/Supplier'
 import Transaction from '@/lib/models/Transaction'
 import User from '@/lib/models/User'
+import PurchaseOrder from '@/lib/models/PurchaseOrder'
 import { formatCurrency } from '@/lib/utils'
 import type { IPopulatedTransaction } from '@/types'
-import { AlertTriangle, Package, TrendingDown, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, Package, TrendingDown, TrendingUp, Users, ShoppingCart, Clock } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { DashboardClient } from './dashboard-client'
 
 async function getDashboardData(userRole: string) {
   await connectDB()
 
-  const products = await Product.find().lean()
+  // Ensure models are registered
+  Supplier
+
+  const products = await Product.find().populate('supplier', 'name').lean()
   const transactions = (await Transaction.find()
     .sort({ date: -1 })
     .limit(10)
@@ -32,6 +40,17 @@ async function getDashboardData(userRole: string) {
 
   const recentStockIn = transactions.filter((t) => t.transactionType === 'stock-in').length
   const recentStockOut = transactions.filter((t) => t.transactionType === 'stock-out').length
+
+  // Purchase Order statistics
+  const pendingPOs = await PurchaseOrder.countDocuments({ status: 'pending-approval' })
+  const orderedPOs = await PurchaseOrder.countDocuments({ status: 'ordered' })
+  const partiallyReceivedPOs = await PurchaseOrder.countDocuments({ status: 'partially-received' })
+
+  const recentPOs = await PurchaseOrder.find()
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .populate('supplier', 'name')
+    .lean()
 
   // Admin-specific data
   let totalUsers = 0
@@ -57,11 +76,15 @@ async function getDashboardData(userRole: string) {
     inventoryValue,
     recentStockIn,
     recentStockOut,
-    lowStockProducts: lowStockProducts.slice(0, 5),
+    lowStockProducts: JSON.parse(JSON.stringify(lowStockProducts.slice(0, 5))),
     recentTransactions: transactions,
     totalUsers,
     totalManagers,
     totalStaff,
+    pendingPOs,
+    orderedPOs,
+    partiallyReceivedPOs,
+    recentPOs: JSON.parse(JSON.stringify(recentPOs)),
   }
 }
 
@@ -107,34 +130,34 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {userRole === 'admin' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.totalUsers}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.totalManagers} managers, {data.totalStaff} staff
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.pendingPOs}</div>
+            <p className="text-xs text-muted-foreground mt-1">Purchase Orders</p>
+          </CardContent>
+        </Card>
 
-        {userRole === 'manager' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
-              <Users className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.totalStaff}</div>
-            </CardContent>
-          </Card>
-        )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.orderedPOs + data.partiallyReceivedPOs}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {data.orderedPOs} ordered, {data.partiallyReceivedPOs} partial
+            </p>
+          </CardContent>
+        </Card>
 
-        {(userRole === 'admin' || userRole === 'manager') && (
+      </div>
+
+      {(userRole === 'admin' || userRole === 'manager') && (
+        <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
@@ -144,67 +167,38 @@ export default async function DashboardPage() {
               <div className="text-2xl font-bold">{formatCurrency(data.inventoryValue)}</div>
             </CardContent>
           </Card>
-        )}
 
-        {userRole === 'staff' && (
-          <>
+          {userRole === 'admin' && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Recent Stock In</CardTitle>
-                <TrendingUp className="h-4 w-4 text-green-500" />
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Users className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{data.recentStockIn}</div>
+                <div className="text-2xl font-bold">{data.totalUsers}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {data.totalManagers} managers, {data.totalStaff} staff
+                </p>
               </CardContent>
             </Card>
+          )}
 
+          {userRole === 'manager' && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Recent Stock Out</CardTitle>
-                <TrendingDown className="h-4 w-4 text-red-500" />
+                <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
+                <Users className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{data.recentStockOut}</div>
+                <div className="text-2xl font-bold">{data.totalStaff}</div>
               </CardContent>
             </Card>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Low Stock Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.lowStockProducts.length > 0 ? (
-              <div className="space-y-4">
-                {data.lowStockProducts.map(
-                  (product: {
-                    _id: { toString: () => string }
-                    name: string
-                    currentStock: number
-                    reorderLevel: number
-                  }) => (
-                    <div key={product._id.toString()} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-sm text-gray-500">
-                          Stock: {product.currentStock} / Reorder: {product.reorderLevel}
-                        </p>
-                      </div>
-                      <span className="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">
-                        Low Stock
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500">No low stock products</p>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <DashboardClient lowStockProducts={data.lowStockProducts} />
 
         <Card>
           <CardHeader>
@@ -225,6 +219,52 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <p className="text-gray-500">No recent transactions</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Purchase Orders</CardTitle>
+            <Link href="/dashboard/purchase-orders" className="text-xs text-blue-600 hover:underline">
+              View All
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {data.recentPOs.length > 0 ? (
+              <div className="space-y-4">
+                {data.recentPOs.map((po: {
+                  _id: { toString: () => string }
+                  poNumber: string
+                  supplier: { name: string }
+                  status: string
+                  totalAmount: number
+                }) => (
+                  <Link
+                    key={po._id.toString()}
+                    href={`/dashboard/purchase-orders/${po._id.toString()}`}
+                    className="flex items-center justify-between hover:bg-gray-50 p-2 rounded -mx-2 transition-colors"
+                  >
+                    <div>
+                      <p className="font-medium">{po.poNumber}</p>
+                      <p className="text-sm text-gray-500">{po.supplier.name}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge className={
+                        po.status === 'pending-approval' ? 'bg-yellow-500' :
+                        po.status === 'ordered' ? 'bg-purple-500' :
+                        po.status === 'received' ? 'bg-green-500' :
+                        'bg-gray-500'
+                      }>
+                        {po.status}
+                      </Badge>
+                      <span className="text-xs text-gray-600">{formatCurrency(po.totalAmount)}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No recent purchase orders</p>
             )}
           </CardContent>
         </Card>

@@ -66,3 +66,53 @@ export interface IWarehouse extends Document {
   manager: string
   status: 'active' | 'inactive'
 }
+
+export interface IPurchaseOrderItem {
+  product: string
+  productName?: string
+  sku?: string
+  quantity: number
+  unitPrice: number
+  totalPrice: number
+  receivedQuantity: number
+}
+
+export interface IPurchaseOrder extends Document {
+  poNumber: string
+  supplier: string
+  items: IPurchaseOrderItem[]
+  status: 'draft' | 'pending-approval' | 'approved' | 'ordered' | 'partially-received' | 'received' | 'closed' | 'cancelled'
+  orderDate: Date
+  expectedDeliveryDate: Date
+  actualDeliveryDate?: Date
+  totalAmount: number
+  notes?: string
+  createdBy: string
+  approvedBy?: string
+  approvedAt?: Date
+  cancelledBy?: string
+  cancelledAt?: Date
+  cancellationReason?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IPopulatedPurchaseOrder extends Omit<IPurchaseOrder, 'supplier' | 'createdBy' | 'approvedBy'> {
+  supplier: ISupplier
+  createdBy: IUser
+  approvedBy?: IUser
+}
+
+export interface IGoodsReceipt extends Document {
+  purchaseOrder: string
+  receivedBy: string
+  receivedDate: Date
+  items: {
+    product: string
+    orderedQuantity: number
+    receivedQuantity: number
+    notes?: string
+  }[]
+  notes?: string
+  createdAt: Date
+}

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
+  ShoppingCart,
   Truck,
   Users,
 } from 'lucide-react'
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'Products', href: '/dashboard/products', icon: Package },
   { name: 'Categories', href: '/dashboard/categories', icon: FolderTree },
   { name: 'Suppliers', href: '/dashboard/suppliers', icon: Truck },
+  { name: 'Purchase Orders', href: '/dashboard/purchase-orders', icon: ShoppingCart },
   { name: 'Transactions', href: '/dashboard/transactions', icon: ArrowRightLeft },
   { name: 'Reports', href: '/dashboard/reports', icon: FileText },
 ]

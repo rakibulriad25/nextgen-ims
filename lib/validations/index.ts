@@ -51,3 +51,30 @@ export const userSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
   role: z.enum(['manager', 'staff']),
 })
+
+export const purchaseOrderItemSchema = z.object({
+  product: z.string().min(1, 'Product is required'),
+  quantity: z.number().min(1, 'Quantity must be at least 1'),
+  unitPrice: z.number().min(0, 'Unit price must be positive'),
+})
+
+export const purchaseOrderSchema = z.object({
+  supplier: z.string().min(1, 'Supplier is required'),
+  items: z.array(purchaseOrderItemSchema).min(1, 'At least one item is required'),
+  expectedDeliveryDate: z.date().min(new Date(), 'Delivery date cannot be in the past'),
+  notes: z.string().optional(),
+})
+
+export const goodsReceiptItemSchema = z.object({
+  product: z.string().min(1, 'Product is required'),
+  orderedQuantity: z.number().min(0),
+  receivedQuantity: z.number().min(0, 'Received quantity must be positive'),
+  notes: z.string().optional(),
+})
+
+export const goodsReceiptSchema = z.object({
+  purchaseOrder: z.string().min(1, 'Purchase order is required'),
+  items: z.array(goodsReceiptItemSchema).min(1, 'At least one item is required'),
+  receivedDate: z.date().optional(),
+  notes: z.string().optional(),
+})
