@@ -63,9 +63,9 @@ export default function TransactionsPage() {
 
   const loadData = async () => {
     setLoading(true)
-    const [txns, prods] = await Promise.all([getTransactions(), getProducts()])
+    const [txns, prodsResult] = await Promise.all([getTransactions(), getProducts()])
     setTransactions(txns)
-    setProducts(prods)
+    setProducts(prodsResult.success ? prodsResult.products : [])
     setLoading(false)
   }
 

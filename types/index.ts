@@ -116,3 +116,98 @@ export interface IGoodsReceipt extends Document {
   notes?: string
   createdAt: Date
 }
+
+export interface IForecastPrediction {
+  date: Date
+  predictedDemand: number
+  confidenceLevel: 'low' | 'medium' | 'high'
+  upperBound: number
+  lowerBound: number
+}
+
+export interface IDemandForecast extends Document {
+  product: string
+  forecastType: 'product' | 'category'
+  category?: string
+
+  // Forecast parameters
+  forecastPeriod: number // Days to forecast (7, 14, 30, 90)
+  historicalPeriod: number // Days of historical data used
+
+  // Forecast results
+  predictions: IForecastPrediction[]
+
+  // Aggregate metrics
+  totalPredictedDemand: number
+  averageDailyDemand: number
+  peakDemandDate: Date
+  peakDemandValue: number
+
+  // AI model info
+  aiModel: string // "google/gemini-2.5-flash-lite"
+  aiConfidence: number // Overall confidence score (0-1)
+  aiInsights: string // Natural language insights from AI
+
+  // Recommendations
+  recommendedReorderPoint: number
+  recommendedOrderQuantity: number
+  stockoutRisk: 'low' | 'medium' | 'high'
+
+  // Metadata
+  generatedBy: string
+  generatedAt: Date
+  status: 'active' | 'archived'
+  accuracy?: number // Actual vs predicted (retroactive)
+
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IPopulatedDemandForecast extends Omit<IDemandForecast, 'product' | 'category' | 'generatedBy'> {
+  product: IProduct
+  category?: ICategory
+  generatedBy: IUser
+}
+
+export interface IHistoricalDemandData {
+  date: string
+  quantity: number
+  transactionCount: number
+}
+
+export interface IDemandStatistics {
+  totalDemand: number
+  averageDailyDemand: number
+  peakDemand: number
+  peakDate: string
+  trend: 'increasing' | 'decreasing' | 'stable'
+  volatility: number
+  daysWithData: number
+}
+
+export interface IAIForecastRequest {
+  productName: string
+  sku: string
+  categoryName: string
+  currentStock: number
+  reorderLevel: number
+  historicalData: IHistoricalDemandData[]
+  statistics: IDemandStatistics
+  forecastDays: number
+}
+
+export interface IAIForecastResponse {
+  predictions: Array<{
+    date: string
+    demand: number
+    confidence: 'low' | 'medium' | 'high'
+    upperBound: number
+    lowerBound: number
+  }>
+  insights: string
+  confidence: number
+  seasonalPattern?: string
+  recommendedReorderPoint: number
+  recommendedOrderQuantity: number
+  stockoutRisk: 'low' | 'medium' | 'high'
+}

@@ -4,6 +4,7 @@ config({ path: resolve(process.cwd(), '.env.local') })
 
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
+import { readFileSync } from 'fs'
 import { connectDB } from '../lib/db/mongoose'
 import Category from '../lib/models/Category'
 import Product from '../lib/models/Product'
@@ -11,6 +12,9 @@ import Supplier from '../lib/models/Supplier'
 import Transaction from '../lib/models/Transaction'
 import User from '../lib/models/User'
 import PurchaseOrder from '../lib/models/PurchaseOrder'
+
+// Load seed data
+const seedData = JSON.parse(readFileSync(resolve(__dirname, 'seed-data.json'), 'utf-8'))
 
 async function seed() {
   try {
@@ -31,217 +35,182 @@ async function seed() {
     // Create users with different roles
     const hashedPassword = await bcrypt.hash('password123', 10)
 
-    const admin = await User.create({
-      name: 'Admin User',
-      email: 'admin@example.com',
-      password: hashedPassword,
-      role: 'admin',
-    })
+    const users = await User.create(
+      seedData.users.map((userData: any) => ({
+        ...userData,
+        password: hashedPassword,
+      }))
+    )
 
-    const manager = await User.create({
-      name: 'Manager User',
-      email: 'manager@example.com',
-      password: hashedPassword,
-      role: 'manager',
-    })
-
-    const staff = await User.create({
-      name: 'Staff User',
-      email: 'staff@example.com',
-      password: hashedPassword,
-      role: 'staff',
-    })
-
+    const [admin, manager, staff] = users
     console.log('Created users (admin, manager, staff)')
 
     // Create categories
-    const categories = await Category.create([
-      { name: 'Electronics', description: 'Electronic devices and accessories' },
-      { name: 'Furniture', description: 'Office and home furniture' },
-      { name: 'Stationery', description: 'Office supplies and stationery' },
-      { name: 'Food & Beverage', description: 'Food and beverage items' },
-    ])
+    const categories = await Category.create(seedData.categories)
     console.log('Created categories')
 
     // Create suppliers
-    const suppliers = await Supplier.create([
-      {
-        name: 'Tech Supplies Inc',
-        contactPerson: 'John Doe',
-        email: 'john@techsupplies.com',
-        phone: '+1234567890',
-        address: '123 Tech Street, Silicon Valley, CA',
-        status: 'active',
-      },
-      {
-        name: 'Furniture World',
-        contactPerson: 'Jane Smith',
-        email: 'jane@furnitureworld.com',
-        phone: '+1234567891',
-        address: '456 Furniture Ave, New York, NY',
-        status: 'active',
-      },
-      {
-        name: 'Office Essentials',
-        contactPerson: 'Bob Johnson',
-        email: 'bob@officeessentials.com',
-        phone: '+1234567892',
-        address: '789 Office Blvd, Chicago, IL',
-        status: 'active',
-      },
-    ])
+    const suppliers = await Supplier.create(seedData.suppliers)
     console.log('Created suppliers')
 
-    // Create products
-    const products = await Product.create([
-      {
-        name: 'Laptop Dell XPS 15',
-        sku: 'LAPTOP-001',
-        description: 'High-performance laptop for business',
-        category: categories[0]._id,
-        supplier: suppliers[0]._id,
-        unitPrice: 1299.99,
-        costPrice: 999.99,
-        reorderLevel: 5,
-        currentStock: 15,
-        unit: 'pieces',
-        status: 'active',
-      },
-      {
-        name: 'Wireless Mouse',
-        sku: 'MOUSE-001',
-        description: 'Ergonomic wireless mouse',
-        category: categories[0]._id,
-        supplier: suppliers[0]._id,
-        unitPrice: 29.99,
-        costPrice: 15.99,
-        reorderLevel: 20,
-        currentStock: 50,
-        unit: 'pieces',
-        status: 'active',
-      },
-      {
-        name: 'Office Desk',
-        sku: 'DESK-001',
-        description: 'Adjustable standing desk',
-        category: categories[1]._id,
-        supplier: suppliers[1]._id,
-        unitPrice: 499.99,
-        costPrice: 299.99,
-        reorderLevel: 3,
-        currentStock: 8,
-        unit: 'pieces',
-        status: 'active',
-      },
-      {
-        name: 'Office Chair',
-        sku: 'CHAIR-001',
-        description: 'Ergonomic office chair with lumbar support',
-        category: categories[1]._id,
-        supplier: suppliers[1]._id,
-        unitPrice: 299.99,
-        costPrice: 179.99,
-        reorderLevel: 5,
-        currentStock: 3,
-        unit: 'pieces',
-        status: 'active',
-      },
-      {
-        name: 'Notebook A4',
-        sku: 'NOTE-001',
-        description: 'Ruled notebook 200 pages',
-        category: categories[2]._id,
-        supplier: suppliers[2]._id,
-        unitPrice: 4.99,
-        costPrice: 2.49,
-        reorderLevel: 100,
-        currentStock: 250,
-        unit: 'pieces',
-        status: 'active',
-      },
-      {
-        name: 'Ballpoint Pen Pack',
-        sku: 'PEN-001',
-        description: 'Pack of 10 blue ballpoint pens',
-        category: categories[2]._id,
-        supplier: suppliers[2]._id,
-        unitPrice: 9.99,
-        costPrice: 4.99,
-        reorderLevel: 50,
-        currentStock: 120,
-        unit: 'pieces',
-        status: 'active',
-      },
-    ])
+    // Create products with mapped references
+    const products = await Product.create(
+      seedData.products.map((productData: any) => ({
+        name: productData.name,
+        sku: productData.sku,
+        description: productData.description,
+        category: categories[productData.categoryIndex]._id,
+        supplier: suppliers[productData.supplierIndex]._id,
+        unitPrice: productData.unitPrice,
+        costPrice: productData.costPrice,
+        reorderLevel: productData.reorderLevel,
+        currentStock: productData.currentStock,
+        unit: productData.unit,
+        status: productData.status,
+      }))
+    )
     console.log('Created products')
 
-    // Create transactions for visualization (6 months)
+    // Generate comprehensive daily transaction history for forecasting
     const transactionsData = []
     const now = new Date()
+    now.setHours(0, 0, 0, 0)
 
     // Helper function to get a date N days ago
-    const daysAgo = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
-
-    const users = [admin, manager, staff]
-    const reasons = {
-      'stock-in': ['New stock arrival', 'Supplier delivery', 'Restocking', 'Initial stock', 'Purchase order received'],
-      'stock-out': ['Sales order', 'Customer order', 'Internal use', 'Office setup', 'Damaged items']
+    const daysAgo = (days: number) => {
+      const date = new Date(now)
+      date.setDate(date.getDate() - days)
+      return date
     }
 
-    // Generate monthly aggregated transactions for the last 6 months
-    // This creates just enough data to visualize the chart properly
-    for (let month = 5; month >= 0; month--) {
-      const monthDate = new Date()
-      monthDate.setMonth(monthDate.getMonth() - month)
-      monthDate.setDate(15) // Mid-month for consistent display
+    const userList = [admin, manager, staff]
+    const reasons = {
+      'stock-in': ['New stock arrival', 'Supplier delivery', 'Restocking', 'Initial stock', 'Purchase order received'],
+      'stock-out': ['Sales order', 'Customer order', 'Internal use', 'Office setup', 'Bulk purchase', 'Retail sale']
+    }
 
-      // Create 8-12 transactions per month (not per day)
-      const numTransactions = Math.floor(Math.random() * 5) + 8
+    // Generate 60 days of realistic daily transaction history
+    const HISTORY_DAYS = 60
+    const productInventory: Record<string, number> = {}
 
-      for (let i = 0; i < numTransactions; i++) {
-        const product = products[Math.floor(Math.random() * products.length)]
-        const transactionType = Math.random() > 0.5 ? 'stock-in' : 'stock-out'
-        const user = users[Math.floor(Math.random() * users.length)]
-        const reasonList = reasons[transactionType]
-        const reason = reasonList[Math.floor(Math.random() * reasonList.length)]
+    // Initialize starting inventory (2 months ago stock levels)
+    products.forEach((product: any, index: number) => {
+      const pattern = seedData.transactionPatterns[seedData.products[index].salesPattern]
+      // Start with higher inventory to support the sales pattern
+      productInventory[product._id.toString()] = Math.floor(pattern.avgDailyDemand * 30) + product.currentStock
+    })
 
-        // Random day within the month
-        const dayOffset = Math.floor(Math.random() * 28) - 14
-        const transactionDate = new Date(monthDate.getTime() + dayOffset * 24 * 60 * 60 * 1000)
+    console.log('Generating 60 days of transaction history...')
 
-        // Quantity varies by product type and transaction
-        let quantity
-        if (transactionType === 'stock-in') {
-          // Stock in: larger quantities
-          quantity = Math.floor(Math.random() * 30) + 10
-        } else {
-          // Stock out: smaller quantities
-          quantity = Math.floor(Math.random() * 15) + 1
+    for (let dayOffset = HISTORY_DAYS; dayOffset >= 0; dayOffset--) {
+      const transactionDate = daysAgo(dayOffset)
+
+      // Generate transactions for each product
+      for (let i = 0; i < products.length; i++) {
+        const product = products[i]
+        const productData = seedData.products[i]
+        const pattern = seedData.transactionPatterns[productData.salesPattern]
+        const productId = product._id.toString()
+
+        // Calculate demand for this day based on pattern
+        let dailyDemand = pattern.avgDailyDemand
+
+        // Apply trend (cumulative over time)
+        if (pattern.trend) {
+          const trendEffect = pattern.trend * (HISTORY_DAYS - dayOffset) / 30 // monthly trend
+          dailyDemand = dailyDemand * (1 + trendEffect)
         }
 
-        // Calculate balance (this is simplified - real balance would track actual inventory)
-        const balanceAfter = Math.floor(Math.random() * 100) + 10
+        // Apply seasonal variation (if applicable)
+        if (pattern.seasonal) {
+          const seasonalPhase = ((HISTORY_DAYS - dayOffset) / 30) * Math.PI // semi-monthly cycle
+          const seasonalMultiplier = 1 + 0.5 * Math.sin(seasonalPhase)
+          dailyDemand = dailyDemand * seasonalMultiplier
+        }
 
-        transactionsData.push({
-          product: product._id,
-          transactionType,
-          quantity,
-          reason,
-          performedBy: user._id,
-          date: transactionDate,
-          balanceAfter,
+        // Apply volatility (random variation)
+        const volatilityFactor = 1 + (Math.random() - 0.5) * 2 * pattern.volatility
+        dailyDemand = Math.max(0, Math.round(dailyDemand * volatilityFactor))
+
+        // Skip if no demand for this day
+        if (dailyDemand === 0) continue
+
+        // Check if we need to restock
+        const currentStock = productInventory[productId] || 0
+
+        // Restock when inventory gets low (below reorder level)
+        if (currentStock < product.reorderLevel * 2) {
+          const restockQuantity = Math.floor(pattern.avgDailyDemand * 20) // 20 days worth
+          const restockDate = new Date(transactionDate)
+          restockDate.setHours(8, 0, 0, 0) // Morning delivery
+
+          transactionsData.push({
+            product: product._id,
+            transactionType: 'stock-in',
+            quantity: restockQuantity,
+            reason: reasons['stock-in'][Math.floor(Math.random() * reasons['stock-in'].length)],
+            performedBy: userList[Math.floor(Math.random() * userList.length)]._id,
+            date: restockDate,
+            balanceAfter: currentStock + restockQuantity,
+          })
+
+          productInventory[productId] = currentStock + restockQuantity
+        }
+
+        // Process stock-out transactions throughout the day
+        // Split demand into multiple transactions for realism
+        const numTransactions = Math.max(1, Math.floor(dailyDemand / 3) + (Math.random() > 0.5 ? 1 : 0))
+        const quantitiesPerTransaction = []
+
+        // Distribute demand across transactions
+        let remainingDemand = dailyDemand
+        for (let t = 0; t < numTransactions; t++) {
+          if (t === numTransactions - 1) {
+            quantitiesPerTransaction.push(remainingDemand)
+          } else {
+            const qty = Math.max(1, Math.floor(remainingDemand / (numTransactions - t) * (0.5 + Math.random())))
+            quantitiesPerTransaction.push(qty)
+            remainingDemand -= qty
+          }
+        }
+
+        // Create stock-out transactions
+        quantitiesPerTransaction.forEach((quantity, txIndex) => {
+          const transactionTime = new Date(transactionDate)
+          transactionTime.setHours(9 + Math.floor((txIndex / numTransactions) * 8), Math.floor(Math.random() * 60), 0, 0)
+
+          const newBalance = (productInventory[productId] || 0) - quantity
+          productInventory[productId] = Math.max(0, newBalance)
+
+          transactionsData.push({
+            product: product._id,
+            transactionType: 'stock-out',
+            quantity,
+            reason: reasons['stock-out'][Math.floor(Math.random() * reasons['stock-out'].length)],
+            performedBy: userList[Math.floor(Math.random() * userList.length)]._id,
+            date: transactionTime,
+            balanceAfter: Math.max(0, newBalance),
+          })
         })
       }
     }
 
+    // Sort transactions by date
+    transactionsData.sort((a, b) => a.date.getTime() - b.date.getTime())
+
     const transactions = await Transaction.create(transactionsData)
-    console.log(`Created ${transactions.length} transactions across last 6 months`)
+    console.log(`Created ${transactions.length} transactions across last ${HISTORY_DAYS} days`)
+    console.log('Transaction breakdown:')
+    const stockIns = transactions.filter(t => t.transactionType === 'stock-in').length
+    const stockOuts = transactions.filter(t => t.transactionType === 'stock-out').length
+    console.log(`  - Stock-in: ${stockIns}`)
+    console.log(`  - Stock-out: ${stockOuts}`)
 
     // Create sample purchase orders with different statuses
     const purchaseOrdersData = []
     const poStatuses = ['pending-approval', 'approved', 'ordered', 'partially-received', 'received', 'closed']
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 15; i++) {
       const supplier = suppliers[Math.floor(Math.random() * suppliers.length)]
       const numItems = Math.floor(Math.random() * 3) + 1
       const items = []
@@ -249,7 +218,7 @@ async function seed() {
       for (let j = 0; j < numItems; j++) {
         const product = products[Math.floor(Math.random() * products.length)]
         const quantity = Math.floor(Math.random() * 50) + 10
-        const receivedQty = i < 3 ? 0 : i < 6 ? Math.floor(quantity * 0.5) : quantity
+        const receivedQty = i < 3 ? 0 : i < 8 ? Math.floor(quantity * 0.5) : quantity
 
         items.push({
           product: product._id,

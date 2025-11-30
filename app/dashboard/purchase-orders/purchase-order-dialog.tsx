@@ -51,8 +51,9 @@ export function PurchaseOrderDialog({ open, onOpenChange }: PurchaseOrderDialogP
   }, [open])
 
   const loadData = async () => {
-    const [sups, prods] = await Promise.all([getSuppliers(), getProducts()])
+    const [sups, prodsResult] = await Promise.all([getSuppliers(), getProducts()])
     setSuppliers(sups.filter((s: { status: string }) => s.status === 'active'))
+    const prods = prodsResult.success ? prodsResult.products : []
     setProducts(prods.filter((p: { status: string }) => p.status === 'active'))
   }
 

@@ -166,8 +166,8 @@ export default function ReportsPage() {
 
   const loadData = async () => {
     setLoading(true)
-    const [prods, txns] = await Promise.all([getProducts(), getTransactions()])
-    setProducts(prods)
+    const [prodsResult, txns] = await Promise.all([getProducts(), getTransactions()])
+    setProducts(prodsResult.success ? prodsResult.products : [])
     setTransactions(txns)
     setLoading(false)
   }

@@ -8,6 +8,8 @@ import {
   LogOut,
   Package,
   ShoppingCart,
+  Sparkles,
+  TrendingUp,
   Truck,
   Users,
 } from 'lucide-react'
@@ -35,6 +37,7 @@ const navigation = [
   { name: 'Suppliers', href: '/dashboard/suppliers', icon: Truck },
   { name: 'Purchase Orders', href: '/dashboard/purchase-orders', icon: ShoppingCart },
   { name: 'Transactions', href: '/dashboard/transactions', icon: ArrowRightLeft },
+  { name: 'Forecasting', href: '/dashboard/forecasting', icon: Sparkles },
   { name: 'Reports', href: '/dashboard/reports', icon: FileText },
 ]
 

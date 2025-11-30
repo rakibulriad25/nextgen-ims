@@ -8,16 +8,21 @@ import { productSchema } from '@/lib/validations'
 import { revalidatePath } from 'next/cache'
 
 export async function getProducts() {
-  await connectDB()
-  // Ensure models are registered
-  Category
-  Supplier
-  const products = await Product.find()
-    .populate('category')
-    .populate('supplier')
-    .sort({ createdAt: -1 })
-    .lean()
-  return JSON.parse(JSON.stringify(products))
+  try {
+    await connectDB()
+    // Ensure models are registered
+    Category
+    Supplier
+    const products = await Product.find()
+      .populate('category')
+      .populate('supplier')
+      .sort({ createdAt: -1 })
+      .lean()
+    return { success: true, products: JSON.parse(JSON.stringify(products)) }
+  } catch (error) {
+    console.error('Error fetching products:', error)
+    return { success: false, error: 'Failed to fetch products', products: [] }
+  }
 }
 
 export async function getProduct(id: string) {

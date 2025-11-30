@@ -20,8 +20,12 @@ export default function ProductsPage() {
 
   const loadProducts = async () => {
     setLoading(true)
-    const data = await getProducts()
-    setProducts(data as Product[])
+    const result = await getProducts()
+    if (result.success) {
+      setProducts(result.products as Product[])
+    } else {
+      toast.error(result.error || 'Failed to load products')
+    }
     setLoading(false)
   }
 

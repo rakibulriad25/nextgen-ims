@@ -1,0 +1,185 @@
+{
+  "users": [
+    {
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "password123",
+      "role": "admin"
+    },
+    {
+      "name": "Manager User",
+      "email": "manager@example.com",
+      "password": "password123",
+      "role": "manager"
+    },
+    {
+      "name": "Staff User",
+      "email": "staff@example.com",
+      "password": "password123",
+      "role": "staff"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Electronics",
+      "description": "Electronic devices and accessories"
+    },
+    {
+      "name": "Furniture",
+      "description": "Office and home furniture"
+    },
+    {
+      "name": "Stationery",
+      "description": "Office supplies and stationery"
+    },
+    {
+      "name": "Food & Beverage",
+      "description": "Food and beverage items"
+    }
+  ],
+  "suppliers": [
+    {
+      "name": "Tech Supplies Inc",
+      "contactPerson": "John Doe",
+      "email": "john@techsupplies.com",
+      "phone": "+1234567890",
+      "address": "123 Tech Street, Silicon Valley, CA",
+      "status": "active"
+    },
+    {
+      "name": "Furniture World",
+      "contactPerson": "Jane Smith",
+      "email": "jane@furnitureworld.com",
+      "phone": "+1234567891",
+      "address": "456 Furniture Ave, New York, NY",
+      "status": "active"
+    },
+    {
+      "name": "Office Essentials",
+      "contactPerson": "Bob Johnson",
+      "email": "bob@officeessentials.com",
+      "phone": "+1234567892",
+      "address": "789 Office Blvd, Chicago, IL",
+      "status": "active"
+    }
+  ],
+  "products": [
+    {
+      "name": "Laptop Dell XPS 15",
+      "sku": "LAPTOP-001",
+      "description": "High-performance laptop for business",
+      "categoryIndex": 0,
+      "supplierIndex": 0,
+      "unitPrice": 1299.99,
+      "costPrice": 999.99,
+      "reorderLevel": 5,
+      "currentStock": 15,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "steady-high"
+    },
+    {
+      "name": "Wireless Mouse",
+      "sku": "MOUSE-001",
+      "description": "Ergonomic wireless mouse",
+      "categoryIndex": 0,
+      "supplierIndex": 0,
+      "unitPrice": 29.99,
+      "costPrice": 15.99,
+      "reorderLevel": 20,
+      "currentStock": 50,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "increasing"
+    },
+    {
+      "name": "Office Desk",
+      "sku": "DESK-001",
+      "description": "Adjustable standing desk",
+      "categoryIndex": 1,
+      "supplierIndex": 1,
+      "unitPrice": 499.99,
+      "costPrice": 299.99,
+      "reorderLevel": 3,
+      "currentStock": 8,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "seasonal"
+    },
+    {
+      "name": "Office Chair",
+      "sku": "CHAIR-001",
+      "description": "Ergonomic office chair with lumbar support",
+      "categoryIndex": 1,
+      "supplierIndex": 1,
+      "unitPrice": 299.99,
+      "costPrice": 179.99,
+      "reorderLevel": 5,
+      "currentStock": 3,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "steady-medium"
+    },
+    {
+      "name": "Notebook A4",
+      "sku": "NOTE-001",
+      "description": "Ruled notebook 200 pages",
+      "categoryIndex": 2,
+      "supplierIndex": 2,
+      "unitPrice": 4.99,
+      "costPrice": 2.49,
+      "reorderLevel": 100,
+      "currentStock": 250,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "decreasing"
+    },
+    {
+      "name": "Ballpoint Pen Pack",
+      "sku": "PEN-001",
+      "description": "Pack of 10 blue ballpoint pens",
+      "categoryIndex": 2,
+      "supplierIndex": 2,
+      "unitPrice": 9.99,
+      "costPrice": 4.99,
+      "reorderLevel": 50,
+      "currentStock": 120,
+      "unit": "pieces",
+      "status": "active",
+      "salesPattern": "volatile"
+    }
+  ],
+  "transactionPatterns": {
+    "steady-high": {
+      "avgDailyDemand": 3,
+      "volatility": 0.2,
+      "trend": 0
+    },
+    "steady-medium": {
+      "avgDailyDemand": 2,
+      "volatility": 0.15,
+      "trend": 0
+    },
+    "increasing": {
+      "avgDailyDemand": 4,
+      "volatility": 0.25,
+      "trend": 0.05
+    },
+    "decreasing": {
+      "avgDailyDemand": 8,
+      "volatility": 0.3,
+      "trend": -0.05
+    },
+    "seasonal": {
+      "avgDailyDemand": 1,
+      "volatility": 0.4,
+      "trend": 0,
+      "seasonal": true
+    },
+    "volatile": {
+      "avgDailyDemand": 5,
+      "volatility": 0.6,
+      "trend": 0
+    }
+  }
+}
