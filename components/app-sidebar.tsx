@@ -61,8 +61,8 @@ export function AppSidebar({ userEmail, userRole }: { userEmail: string; userRol
                   <Package className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Inventory MS</span>
-                  <span className="truncate text-xs">{userEmail}</span>
+                  <span className="truncate font-semibold">NextGen IMS</span>
+                  <span className="truncate text-xs text-slate-500">{userEmail}</span>
                 </div>
               </div>
             </SidebarMenuButton>

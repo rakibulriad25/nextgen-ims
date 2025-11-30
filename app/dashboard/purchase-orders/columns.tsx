@@ -70,12 +70,12 @@ export const createColumns = (onView: (po: PurchaseOrder) => void): ColumnDef<Pu
       )
     },
     cell: ({ row }) => {
-      const supplier = row.getValue('supplier') as { name: string }
-      return <div>{supplier.name}</div>
+      const supplier = row.getValue('supplier') as { name: string } | null
+      return <div>{supplier?.name || 'No supplier'}</div>
     },
     sortingFn: (rowA, rowB) => {
-      const a = (rowA.getValue('supplier') as { name: string }).name
-      const b = (rowB.getValue('supplier') as { name: string }).name
+      const a = (rowA.getValue('supplier') as { name: string } | null)?.name || ''
+      const b = (rowB.getValue('supplier') as { name: string } | null)?.name || ''
       return a.localeCompare(b)
     },
   },

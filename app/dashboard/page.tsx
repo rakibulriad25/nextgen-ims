@@ -13,14 +13,20 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { DashboardClient } from './dashboard-client'
+import { TransactionChart } from './transaction-chart'
+import { LowStockGauge } from './low-stock-gauge'
+import { TopProductsChart } from './top-products-chart'
+import { POStatusChart } from './po-status-chart'
+import Category from '@/lib/models/Category'
 
 async function getDashboardData(userRole: string) {
   await connectDB()
 
   // Ensure models are registered
   Supplier
+  Category
 
-  const products = await Product.find().populate('supplier', 'name').lean()
+  const products = await Product.find().populate('supplier', 'name').populate('category', 'name').lean()
   const transactions = (await Transaction.find()
     .sort({ date: -1 })
     .limit(10)
@@ -40,6 +46,28 @@ async function getDashboardData(userRole: string) {
 
   const recentStockIn = transactions.filter((t) => t.transactionType === 'stock-in').length
   const recentStockOut = transactions.filter((t) => t.transactionType === 'stock-out').length
+
+  // Get last 6 months transaction data
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+  const monthlyTransactions = await Transaction.find({
+    date: { $gte: sixMonthsAgo }
+  }).lean()
+
+  // Group transactions by month
+  const transactionsByMonth = monthlyTransactions.reduce((acc: Record<string, { stockIn: number; stockOut: number }>, txn: { date: Date; transactionType: string; quantity: number }) => {
+    const monthKey = new Date(txn.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+    if (!acc[monthKey]) {
+      acc[monthKey] = { stockIn: 0, stockOut: 0 }
+    }
+    if (txn.transactionType === 'stock-in') {
+      acc[monthKey].stockIn += txn.quantity
+    } else if (txn.transactionType === 'stock-out') {
+      acc[monthKey].stockOut += txn.quantity
+    }
+    return acc
+  }, {})
 
   // Purchase Order statistics
   const pendingPOs = await PurchaseOrder.countDocuments({ status: 'pending-approval' })
@@ -70,6 +98,50 @@ async function getDashboardData(userRole: string) {
     totalStaff = staff.length
   }
 
+  // Top 5 products by stock value
+  const topProducts = products
+    .map((p: { name: string; currentStock: number; unitPrice: number }) => ({
+      name: p.name,
+      value: p.currentStock * p.unitPrice,
+      fill: 'var(--color-value)',
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5)
+
+  // PO status distribution
+  const poStatusCounts = await PurchaseOrder.aggregate([
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ])
+
+  const poStatusData = poStatusCounts.map((item: { _id: string; count: number }) => ({
+    status: item._id,
+    count: item.count,
+    fill: `var(--color-${item._id})`,
+  }))
+
+  // Inventory value by category
+  const categoryValues: Record<string, number> = {}
+  products.forEach((p: { category: { name: string } | null; currentStock: number; unitPrice: number }) => {
+    const categoryName = p.category?.name || 'Uncategorized'
+    if (!categoryValues[categoryName]) {
+      categoryValues[categoryName] = 0
+    }
+    categoryValues[categoryName] += p.currentStock * p.unitPrice
+  })
+
+  const categoryValueData = Object.entries(categoryValues)
+    .map(([name, value]) => ({
+      name,
+      value,
+      fill: 'var(--color-value)',
+    }))
+    .sort((a, b) => b.value - a.value)
+
   return {
     totalProducts,
     lowStockCount: lowStockProducts.length,
@@ -85,6 +157,10 @@ async function getDashboardData(userRole: string) {
     orderedPOs,
     partiallyReceivedPOs,
     recentPOs: JSON.parse(JSON.stringify(recentPOs)),
+    transactionsByMonth,
+    topProducts,
+    poStatusData,
+    categoryValueData,
   }
 }
 
@@ -156,8 +232,16 @@ export default async function DashboardPage() {
 
       </div>
 
+      {/* Single row: Top Products + Transaction Overview + Stock Health + PO Status */}
+      <div className="grid gap-4 lg:grid-cols-4">
+        <TopProductsChart products={data.topProducts} />
+        <TransactionChart data={data.transactionsByMonth} />
+        <LowStockGauge lowStockCount={data.lowStockCount} totalProducts={data.totalProducts} />
+        <POStatusChart data={data.poStatusData} />
+      </div>
+
       {(userRole === 'admin' || userRole === 'manager') && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
@@ -194,6 +278,28 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           )}
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Recent Stock In</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.recentStockIn}</div>
+              <p className="text-xs text-muted-foreground mt-1">Last 10 transactions</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Recent Stock Out</CardTitle>
+              <TrendingDown className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.recentStockOut}</div>
+              <p className="text-xs text-muted-foreground mt-1">Last 10 transactions</p>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -247,7 +353,7 @@ export default async function DashboardPage() {
                   >
                     <div>
                       <p className="font-medium">{po.poNumber}</p>
-                      <p className="text-sm text-gray-500">{po.supplier.name}</p>
+                      <p className="text-sm text-gray-500">{po.supplier?.name || 'No supplier'}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <Badge className={
