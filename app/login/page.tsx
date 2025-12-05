@@ -2,6 +2,7 @@ import { GalleryVerticalEnd } from 'lucide-react'
 import type { Metadata } from 'next'
 
 import { LoginForm } from '@/components/login-form'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Login - NextGen IMS',
@@ -16,7 +17,7 @@ export default function LoginPage() {
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          NextGEN IMS
+          <Link href="/">NextGEN IMS</Link>
         </div>
         <LoginForm />
       </div>
