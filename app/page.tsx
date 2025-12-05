@@ -13,6 +13,12 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'NextGen IMS - AI-Driven Inventory Management System',
+  description: 'Streamline stock control with predictive analytics, real-time tracking, and automated purchase orders. Built for modern businesses.',
+}
 
 export default async function Home() {
   const session = await auth()

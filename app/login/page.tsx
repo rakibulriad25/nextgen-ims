@@ -1,6 +1,12 @@
 import { GalleryVerticalEnd } from 'lucide-react'
+import type { Metadata } from 'next'
 
 import { LoginForm } from '@/components/login-form'
+
+export const metadata: Metadata = {
+  title: 'Login - NextGen IMS',
+  description: 'Sign in to your NextGen IMS account to manage inventory, track stock, and access analytics.',
+}
 
 export default function LoginPage() {
   return (
