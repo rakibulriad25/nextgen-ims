@@ -47,15 +47,17 @@ async function seed() {
     console.log('Created users (admin, manager, staff)')
 
     // Create categories
-    const categories = await Category.create(seedData.categories)
+    const categoriesArray = await Category.create(seedData.categories)
+    const categories = Array.isArray(categoriesArray) ? categoriesArray : [categoriesArray]
     console.log('Created categories')
 
     // Create suppliers
-    const suppliers = await Supplier.create(seedData.suppliers)
+    const suppliersArray = await Supplier.create(seedData.suppliers)
+    const suppliers = Array.isArray(suppliersArray) ? suppliersArray : [suppliersArray]
     console.log('Created suppliers')
 
     // Create products with mapped references
-    const products = await Product.create(
+    const productsArray = await Product.create(
       seedData.products.map((productData: any) => ({
         name: productData.name,
         sku: productData.sku,
@@ -70,6 +72,7 @@ async function seed() {
         status: productData.status,
       }))
     )
+    const products = Array.isArray(productsArray) ? productsArray : [productsArray]
     console.log('Created products')
 
     // Generate comprehensive daily transaction history for forecasting
@@ -199,7 +202,8 @@ async function seed() {
     // Sort transactions by date
     transactionsData.sort((a, b) => a.date.getTime() - b.date.getTime())
 
-    const transactions = await Transaction.create(transactionsData)
+    const transactionsResult = await Transaction.create(transactionsData)
+    const transactions = Array.isArray(transactionsResult) ? transactionsResult : [transactionsResult]
     console.log(`Created ${transactions.length} transactions across last ${HISTORY_DAYS} days`)
     console.log('Transaction breakdown:')
     const stockIns = transactions.filter(t => t.transactionType === 'stock-in').length
@@ -263,7 +267,8 @@ async function seed() {
       purchaseOrdersData.push(poData)
     }
 
-    const purchaseOrders = await PurchaseOrder.create(purchaseOrdersData)
+    const purchaseOrdersResult = await PurchaseOrder.create(purchaseOrdersData)
+    const purchaseOrders = Array.isArray(purchaseOrdersResult) ? purchaseOrdersResult : [purchaseOrdersResult]
     console.log(`Created ${purchaseOrders.length} purchase orders`)
 
     console.log('\n=== Seed completed successfully! ===')
