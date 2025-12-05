@@ -42,22 +42,22 @@ async function seed() {
       }))
     )
 
-    const users: any[] = Array.isArray(usersArray) ? usersArray : [usersArray]
+    const users = (Array.isArray(usersArray) ? usersArray : [usersArray]) as any[]
     const [admin, manager, staff] = users
     console.log('Created users (admin, manager, staff)')
 
     // Create categories
-    const categoriesArray = await Category.create(seedData.categories)
-    const categories: any[] = Array.isArray(categoriesArray) ? categoriesArray : [categoriesArray]
+    const categoriesResult = await Category.create(seedData.categories)
+    const categories = (Array.isArray(categoriesResult) ? categoriesResult : [categoriesResult]) as any[]
     console.log('Created categories')
 
     // Create suppliers
-    const suppliersArray = await Supplier.create(seedData.suppliers)
-    const suppliers: any[] = Array.isArray(suppliersArray) ? suppliersArray : [suppliersArray]
+    const suppliersResult = await Supplier.create(seedData.suppliers)
+    const suppliers = (Array.isArray(suppliersResult) ? suppliersResult : [suppliersResult]) as any[]
     console.log('Created suppliers')
 
     // Create products with mapped references
-    const productsArray = await Product.create(
+    const productsResult = await Product.create(
       seedData.products.map((productData: any) => ({
         name: productData.name,
         sku: productData.sku,
@@ -72,7 +72,7 @@ async function seed() {
         status: productData.status,
       }))
     )
-    const products: any[] = Array.isArray(productsArray) ? productsArray : [productsArray]
+    const products = (Array.isArray(productsResult) ? productsResult : [productsResult]) as any[]
     console.log('Created products')
 
     // Generate comprehensive daily transaction history for forecasting
@@ -203,7 +203,7 @@ async function seed() {
     transactionsData.sort((a, b) => a.date.getTime() - b.date.getTime())
 
     const transactionsResult = await Transaction.create(transactionsData)
-    const transactions: any[] = Array.isArray(transactionsResult) ? transactionsResult : [transactionsResult]
+    const transactions = (Array.isArray(transactionsResult) ? transactionsResult : [transactionsResult]) as any[]
     console.log(`Created ${transactions.length} transactions across last ${HISTORY_DAYS} days`)
     console.log('Transaction breakdown:')
     const stockIns = transactions.filter(t => t.transactionType === 'stock-in').length
@@ -268,7 +268,7 @@ async function seed() {
     }
 
     const purchaseOrdersResult = await PurchaseOrder.create(purchaseOrdersData)
-    const purchaseOrders: any[] = Array.isArray(purchaseOrdersResult) ? purchaseOrdersResult : [purchaseOrdersResult]
+    const purchaseOrders = (Array.isArray(purchaseOrdersResult) ? purchaseOrdersResult : [purchaseOrdersResult]) as any[]
     console.log(`Created ${purchaseOrders.length} purchase orders`)
 
     console.log('\n=== Seed completed successfully! ===')
