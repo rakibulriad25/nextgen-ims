@@ -17,7 +17,6 @@ import { TransactionChart } from './transaction-chart'
 import { LowStockGauge } from './low-stock-gauge'
 import { TopProductsChart } from './top-products-chart'
 import { POStatusChart } from './po-status-chart'
-import { ForecastSummaryCard } from './forecast-summary-card'
 import Category from '@/lib/models/Category'
 
 async function getDashboardData(userRole: string) {
@@ -307,10 +306,6 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <DashboardClient lowStockProducts={data.lowStockProducts} />
 
-        <ForecastSummaryCard />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>

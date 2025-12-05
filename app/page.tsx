@@ -1,43 +1,59 @@
-import { ArrowRight, BarChart3, CheckCircle2, Package, Shield, Zap } from 'lucide-react'
+import { auth } from '@/auth'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Package,
+  BarChart3,
+  ShoppingCart,
+  TrendingUp,
+  Clock,
+  Shield,
+  ArrowRight,
+  CheckCircle2,
+} from 'lucide-react'
 import Link from 'next/link'
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth()
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm">
+      <header className="border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <Package className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-slate-900">Inventory Pro</span>
+            <Package className="h-8 w-8 text-foreground" />
+            <span className="text-xl font-bold text-foreground">NextGen IMS</span>
           </div>
-          <Link
-            href="/dashboard"
-            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            Login to Dashboard
+          <Link href={session ? '/dashboard' : '/login'}>
+            <Button variant={session ? 'default' : 'outline'}>
+              {session ? 'Dashboard' : 'Login'}
+            </Button>
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="mx-auto max-w-7xl px-6 py-20 md:py-28">
         <div className="text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-            Streamline Your Inventory
-            <span className="block text-blue-600">Management</span>
+          <Badge variant="secondary" className="mb-4">
+            AI-Powered Inventory Management
+          </Badge>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+            Intelligent Inventory
+            <span className="block text-slate-600">Management System</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            Take control of your stock with powerful analytics, real-time tracking, and intuitive
-            management tools designed for modern businesses.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
+            Streamline stock control with predictive analytics, real-time tracking, and automated
+            purchase orders. Built for modern businesses.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl"
-            >
-              Get Started
-              <ArrowRight className="h-5 w-5" />
+            <Link href={session ? '/dashboard' : '/login'}>
+              <Button size="lg" className="gap-2">
+                {session ? 'Go to Dashboard' : 'Get Started'}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </Link>
           </div>
         </div>
@@ -45,85 +61,170 @@ export default function Home() {
 
       {/* Features Grid */}
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <FeatureCard
-            icon={<Package className="h-10 w-10 text-blue-600" />}
-            title="Product Management"
-            description="Easily manage products, categories, and inventory levels with an intuitive interface."
-          />
-          <FeatureCard
-            icon={<BarChart3 className="h-10 w-10 text-blue-600" />}
-            title="Real-time Analytics"
-            description="Track sales, monitor stock levels, and gain insights with powerful analytics dashboards."
-          />
-          <FeatureCard
-            icon={<Shield className="h-10 w-10 text-blue-600" />}
-            title="Secure & Reliable"
-            description="Your data is protected with enterprise-grade security and regular backups."
-          />
-          <FeatureCard
-            icon={<Zap className="h-10 w-10 text-blue-600" />}
-            title="Fast Performance"
-            description="Lightning-fast operations with optimized database queries and caching."
-          />
-          <FeatureCard
-            icon={<CheckCircle2 className="h-10 w-10 text-blue-600" />}
-            title="Easy to Use"
-            description="Clean, modern interface designed for efficiency and ease of use."
-          />
-          <FeatureCard
-            icon={<Package className="h-10 w-10 text-blue-600" />}
-            title="Inventory Tracking"
-            description="Monitor stock movements, set reorder points, and automate alerts."
-          />
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold text-slate-900">Core Features</h2>
+          <p className="mt-3 text-slate-600">
+            Everything you need to manage inventory efficiently
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <Package className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Product Management</CardTitle>
+              <CardDescription>
+                Manage products, categories, and suppliers with an intuitive interface and SKU tracking
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <BarChart3 className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Real-time Analytics</CardTitle>
+              <CardDescription>
+                Track stock movements, monitor inventory value, and visualize trends with interactive charts
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <ShoppingCart className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Purchase Orders</CardTitle>
+              <CardDescription>
+                Create, approve, and track purchase orders with multi-stage workflows and receipt management
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <TrendingUp className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Stock Tracking</CardTitle>
+              <CardDescription>
+                Monitor stock levels, set reorder points, and receive low-stock alerts automatically
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Clock className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Transaction History</CardTitle>
+              <CardDescription>
+                Complete audit trail of all stock movements with user attribution and balance tracking
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Shield className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>Role-Based Access</CardTitle>
+              <CardDescription>
+                Secure authentication with admin, manager, and staff roles for controlled access
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="grid gap-12 md:grid-cols-2 items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-6">
+              Built for Efficiency
+            </h2>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-6 w-6 text-slate-700 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-slate-900">Automated Workflows</h3>
+                  <p className="text-slate-600">
+                    Reduce manual work with automated reorder alerts and purchase order generation
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-6 w-6 text-slate-700 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-slate-900">Data-Driven Decisions</h3>
+                  <p className="text-slate-600">
+                    Make informed purchasing decisions with comprehensive analytics and reporting
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-6 w-6 text-slate-700 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-slate-900">Scalable Architecture</h3>
+                  <p className="text-slate-600">
+                    Built with Next.js and MongoDB to handle inventory of any size
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>System Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Products & Categories</span>
+                <Badge variant="outline">Unlimited</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Supplier Management</span>
+                <Badge variant="outline">Multi-supplier</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Transaction History</span>
+                <Badge variant="outline">Complete audit</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">User Roles</span>
+                <Badge variant="outline">Admin/Manager/Staff</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Real-time Updates</span>
+                <Badge variant="outline">Live sync</Badge>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="mx-auto max-w-7xl px-6 py-20">
-        <div className="rounded-2xl bg-linear-to-r from-blue-600 to-blue-700 px-8 py-16 text-center shadow-2xl">
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Ready to optimize your inventory?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-blue-100">
-            Join businesses using Inventory Pro to streamline operations and boost efficiency.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-8 py-3 text-base font-semibold text-blue-600 shadow-lg transition-all hover:bg-slate-50 hover:shadow-xl"
-          >
-            Access Dashboard
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-        </div>
+        <Card className="border-2">
+          <CardContent className="py-16 text-center">
+            <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
+              Ready to optimize your inventory?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">
+              Start managing your stock efficiently with NextGen IMS
+            </p>
+            <Link href={session ? '/dashboard' : '/login'}>
+              <Button size="lg" className="mt-8 gap-2">
+                {session ? 'Access Dashboard' : 'Get Started'}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white">
+      <footer className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <p className="text-center text-sm text-slate-600">
-            © {new Date().getFullYear()} Inventory Pro. All rights reserved.
+            © {new Date().getFullYear()} NextGen IMS. All rights reserved.
           </p>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode
-  title: string
-  description: string
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
-      <div className="mb-4">{icon}</div>
-      <h3 className="mb-2 text-lg font-semibold text-slate-900">{title}</h3>
-      <p className="text-sm leading-6 text-slate-600">{description}</p>
     </div>
   )
 }

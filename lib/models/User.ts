@@ -6,6 +6,8 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: false }, // Optional - not required for OAuth users
   role: { type: String, enum: ['admin', 'manager', 'staff'], default: 'staff' },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
 })
 
