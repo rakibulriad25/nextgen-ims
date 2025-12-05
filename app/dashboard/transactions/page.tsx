@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -26,7 +27,7 @@ import { createTransaction, getTransactions } from '@/lib/actions/transaction'
 import { formatDate } from '@/lib/utils'
 import { transactionSchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
+import { Plus, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -49,6 +50,8 @@ export default function TransactionsPage() {
   const [products, setProducts] = useState<{ _id: string; name: string; sku: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [reasonSuggestions, setReasonSuggestions] = useState<string[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
 
   const {
     register,
@@ -72,6 +75,26 @@ export default function TransactionsPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  const fetchReasonSuggestions = async (transactionType: string) => {
+    if (!transactionType) return
+    setAiLoading(true)
+    try {
+      const response = await fetch('/api/ai/suggest-reasons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionType }),
+      })
+      const data = await response.json()
+      if (data.suggestions) {
+        setReasonSuggestions(data.suggestions)
+      }
+    } catch {
+      console.error('Failed to fetch reason suggestions')
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   const onSubmit = async (data: TransactionForm) => {
     const result = await createTransaction(data)
@@ -198,9 +221,10 @@ export default function TransactionsPage() {
             <div className="space-y-2">
               <Label>Transaction Type</Label>
               <Select
-                onValueChange={(value) =>
+                onValueChange={(value) => {
                   setValue('transactionType', value as 'stock-in' | 'stock-out' | 'adjustment')
-                }
+                  fetchReasonSuggestions(value)
+                }}
                 value={watch('transactionType')}
               >
                 <SelectTrigger>
@@ -231,6 +255,28 @@ export default function TransactionsPage() {
               <Label htmlFor="reason">Reason</Label>
               <Input id="reason" {...register('reason')} />
               {errors.reason && <p className="text-sm text-red-500">{errors.reason.message}</p>}
+              {watch('transactionType') && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3" />
+                    {aiLoading ? 'Loading suggestions...' : 'Common reasons:'}
+                  </div>
+                  {!aiLoading && reasonSuggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {reasonSuggestions.map((suggestion) => (
+                        <Badge
+                          key={suggestion}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => setValue('reason', suggestion)}
+                        >
+                          {suggestion}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

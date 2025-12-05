@@ -11,6 +11,7 @@ import {
   Shield,
   ArrowRight,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -74,6 +75,16 @@ export default async function Home() {
           </p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <Sparkles className="h-10 w-10 text-slate-700 mb-2" />
+              <CardTitle>AI-Powered Suggestions</CardTitle>
+              <CardDescription>
+                Generate product descriptions, category names, and transaction reasons with Google Gemini AI
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
           <Card>
             <CardHeader>
               <Package className="h-10 w-10 text-slate-700 mb-2" />

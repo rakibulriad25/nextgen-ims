@@ -17,6 +17,7 @@ import { createProduct, getProduct, updateProduct } from '@/lib/actions/product'
 import { getSuppliers } from '@/lib/actions/supplier'
 import { productSchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -34,6 +35,7 @@ interface ProductDialogProps {
 
 export function ProductDialog({ open, onClose, product, onSuccess }: ProductDialogProps) {
   const [loading, setLoading] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([])
   const [suppliers, setSuppliers] = useState<{ _id: string; name: string }[]>([])
 
@@ -82,6 +84,38 @@ export function ProductDialog({ open, onClose, product, onSuccess }: ProductDial
     }
   }
 
+  const generateDescription = async () => {
+    const productName = watch('name')
+    if (!productName) {
+      toast.error('Please enter a product name first')
+      return
+    }
+
+    setAiLoading(true)
+    try {
+      const categoryId = watch('category')
+      const categoryName = categories.find((c) => c._id === categoryId)?.name
+
+      const response = await fetch('/api/ai/suggest-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productName, categoryName }),
+      })
+
+      const data = await response.json()
+      if (data.description) {
+        setValue('description', data.description)
+        toast.success('Description generated')
+      } else {
+        toast.error('Failed to generate description')
+      }
+    } catch {
+      toast.error('Failed to generate description')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   const onSubmit = async (data: ProductForm) => {
     setLoading(true)
     const result = product ? await updateProduct(product._id, data) : await createProduct(data)
@@ -118,7 +152,20 @@ export function ProductDialog({ open, onClose, product, onSuccess }: ProductDial
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description">Description</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={generateDescription}
+                disabled={aiLoading}
+                className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Sparkles className="h-3 w-3" />
+                {aiLoading ? 'Generating...' : 'AI Suggest'}
+              </Button>
+            </div>
             <Textarea id="description" {...register('description')} />
             {errors.description && (
               <p className="text-sm text-red-500">{errors.description.message}</p>

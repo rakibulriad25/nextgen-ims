@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { createTransaction } from '@/lib/actions/transaction'
 import { transactionSchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -35,6 +37,8 @@ interface StockUpdateDialogProps {
 
 export function StockUpdateDialog({ open, onClose, product, onSuccess }: StockUpdateDialogProps) {
   const [loading, setLoading] = useState(false)
+  const [reasonSuggestions, setReasonSuggestions] = useState<string[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
 
   const {
     register,
@@ -56,6 +60,31 @@ export function StockUpdateDialog({ open, onClose, product, onSuccess }: StockUp
       setValue('product', product._id)
     }
   }, [product, setValue])
+
+  useEffect(() => {
+    if (open) {
+      fetchReasonSuggestions('stock-in')
+    }
+  }, [open])
+
+  const fetchReasonSuggestions = async (type: string) => {
+    setAiLoading(true)
+    try {
+      const response = await fetch('/api/ai/suggest-reasons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionType: type }),
+      })
+      const data = await response.json()
+      if (data.suggestions) {
+        setReasonSuggestions(data.suggestions)
+      }
+    } catch {
+      console.error('Failed to fetch reason suggestions')
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   const transactionType = watch('transactionType')
   const quantity = watch('quantity')
@@ -122,9 +151,10 @@ export function StockUpdateDialog({ open, onClose, product, onSuccess }: StockUp
           <div className="space-y-2">
             <Label>Transaction Type</Label>
             <Select
-              onValueChange={(value) =>
+              onValueChange={(value) => {
                 setValue('transactionType', value as 'stock-in' | 'stock-out' | 'adjustment')
-              }
+                fetchReasonSuggestions(value)
+              }}
               value={watch('transactionType')}
             >
               <SelectTrigger>
@@ -150,6 +180,26 @@ export function StockUpdateDialog({ open, onClose, product, onSuccess }: StockUp
             <Label htmlFor="reason">Reason</Label>
             <Input id="reason" placeholder="e.g., Purchase, Sale, Damaged goods" {...register('reason')} />
             {errors.reason && <p className="text-sm text-red-500">{errors.reason.message}</p>}
+            <div className="space-y-2">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Sparkles className="h-3 w-3" />
+                {aiLoading ? 'Loading suggestions...' : 'Common reasons:'}
+              </div>
+              {!aiLoading && reasonSuggestions.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {reasonSuggestions.map((suggestion) => (
+                    <Badge
+                      key={suggestion}
+                      variant="secondary"
+                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                      onClick={() => setValue('reason', suggestion)}
+                    >
+                      {suggestion}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

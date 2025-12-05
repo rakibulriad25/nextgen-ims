@@ -1,6 +1,7 @@
 'use client'
 
 import { ImageUpload } from '@/components/image-upload'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -22,7 +23,7 @@ import {
 } from '@/lib/actions/category'
 import { categorySchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edit, FolderIcon, Plus, Trash2 } from 'lucide-react'
+import { Edit, FolderIcon, Plus, Sparkles, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -43,6 +44,8 @@ export default function CategoriesPage() {
     iconUrl?: string
   } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
 
   const {
     register,
@@ -88,6 +91,27 @@ export default function CategoriesPage() {
     setSelectedCategory(null)
     reset({ name: '', description: '' })
     setIsDialogOpen(true)
+    fetchAiSuggestions()
+  }
+
+  const fetchAiSuggestions = async () => {
+    setAiLoading(true)
+    try {
+      const existingNames = categories.map((c) => c.name)
+      const response = await fetch('/api/ai/suggest-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ existingCategories: existingNames }),
+      })
+      const data = await response.json()
+      if (data.suggestions) {
+        setAiSuggestions(data.suggestions)
+      }
+    } catch {
+      console.error('Failed to fetch AI suggestions')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   const onSubmit = async (data: CategoryForm) => {
@@ -190,6 +214,28 @@ export default function CategoriesPage() {
               <Label htmlFor="name">Name</Label>
               <Input id="name" {...register('name')} />
               {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              {!selectedCategory && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3" />
+                    {aiLoading ? 'Loading suggestions...' : 'Popular categories:'}
+                  </div>
+                  {!aiLoading && aiSuggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {aiSuggestions.map((suggestion) => (
+                        <Badge
+                          key={suggestion}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => setValue('name', suggestion)}
+                        >
+                          {suggestion}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>

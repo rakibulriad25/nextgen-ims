@@ -9,6 +9,7 @@ A modern, full-featured inventory management system built for businesses that ne
 ## Features
 
 - **Product Management** - Manage products, categories, and suppliers with SKU tracking
+- **AI-Powered Suggestions** - Google Gemini integration for product descriptions, category names, and transaction reasons
 - **Real-time Analytics** - Track stock movements, monitor inventory value, and visualize trends
 - **Purchase Orders** - Create, approve, and track orders with multi-stage workflows
 - **Stock Tracking** - Monitor levels, set reorder points, and receive low-stock alerts
@@ -24,6 +25,7 @@ A modern, full-featured inventory management system built for businesses that ne
 | Language | TypeScript |
 | Database | MongoDB with Mongoose |
 | Authentication | NextAuth.js v5 |
+| AI | Vercel AI SDK + Google Gemini |
 | UI Components | ShadCN UI + Radix UI |
 | Styling | Tailwind CSS v4 |
 | Forms | React Hook Form + Zod |
@@ -60,6 +62,9 @@ A modern, full-featured inventory management system built for businesses that ne
    # NextAuth
    AUTH_SECRET=your-secret-key
    AUTH_URL=http://localhost:3000
+
+   # AI Gateway (Optional - for AI features)
+   AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
    ```
 
    Generate AUTH_SECRET:
@@ -137,5 +142,4 @@ MIT License
 
 ---
 
-Built with Next.js and MongoDB
-Creadit: Rakibul Hassan
+Built with Next.js and MongoDB ~ Credit: Rakibul Hassan
