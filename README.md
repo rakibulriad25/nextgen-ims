@@ -1,153 +1,141 @@
-# Inventory Management System
+# NextGen IMS
 
-A modern, full-featured inventory management system built with Next.js 14, TypeScript, MongoDB, and Tailwind CSS.
+**AI-Driven Inventory Management System with Predictive Stock Analytics**
+
+https://nextgen-ims.vercel.app/
+
+A modern, full-featured inventory management system built for businesses that need real-time tracking, automated workflows, and data-driven insights.
 
 ## Features
 
-- **Authentication**: Secure login with NextAuth.js and bcrypt password hashing
-- **Dashboard**: Real-time metrics, low stock alerts, and inventory value tracking
-- **Products Management**: Full CRUD operations with search, filters, and low stock badges
-- **Categories Management**: Organize products into categories
-- **Suppliers Management**: Manage supplier information and contacts
-- **Transactions**: Track stock-in, stock-out, and inventory adjustments
-- **Reports**: Generate and print inventory status, low stock, and transaction reports
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Product Management** - Manage products, categories, and suppliers with SKU tracking
+- **Real-time Analytics** - Track stock movements, monitor inventory value, and visualize trends
+- **Purchase Orders** - Create, approve, and track orders with multi-stage workflows
+- **Stock Tracking** - Monitor levels, set reorder points, and receive low-stock alerts
+- **Transaction History** - Complete audit trail with user attribution and balance tracking
+- **Role-Based Access** - Secure authentication with Admin, Manager, and Staff roles
+- **Reports** - Generate and export inventory, transaction, and stock reports
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: NextAuth.js v5
-- **UI Components**: Radix UI + Tailwind CSS
-- **Forms**: React Hook Form + Zod validation
-- **Notifications**: Sonner (toast notifications)
-- **Printing**: react-to-print
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Database | MongoDB with Mongoose |
+| Authentication | NextAuth.js v5 |
+| UI Components | ShadCN UI + Radix UI |
+| Styling | Tailwind CSS v4 |
+| Forms | React Hook Form + Zod |
+| Charts | Recharts |
 
-## Prerequisites
+## Getting Started
 
-- Node.js 18+ and npm
-- MongoDB database (local or MongoDB Atlas)
+### Prerequisites
 
-## Installation
+- Node.js 18+
+- pnpm (recommended) or npm
+- MongoDB (local or Atlas)
 
-1. **Install dependencies**
+### Installation
+
+1. **Clone the repository**
    ```bash
-   npm install
+   git clone https://github.com/yourusername/nextgen-ims.git
+   cd nextgen-ims
    ```
 
-2. **Environment Setup**
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-   Create a `.env.local` file in the root directory:
+3. **Environment Setup**
+
+   Create a `.env.local` file:
    ```env
-   # MongoDB Connection
-   MONGODB_URI=mongodb://localhost:27017/inventory-management
-   # Or for MongoDB Atlas:
-   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/inventory-management
+   # MongoDB
+   MONGODB_URI=mongodb://localhost:27017/nextgen-ims
 
-   # NextAuth Configuration
-   AUTH_SECRET=your-super-secret-key-here-change-this-in-production
+   # NextAuth
+   AUTH_SECRET=your-secret-key
    AUTH_URL=http://localhost:3000
    ```
 
-   **Generate AUTH_SECRET**:
+   Generate AUTH_SECRET:
    ```bash
    openssl rand -base64 32
    ```
 
-3. **Seed the database**
+4. **Seed the database**
    ```bash
-   npm run seed
+   pnpm seed
    ```
 
-   This will create:
-   - Admin user (email: admin@example.com, password: admin123)
-   - 4 categories
-   - 3 suppliers
-   - 6 products
-   - 5 sample transactions
-
-4. **Run the development server**
+5. **Run development server**
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
-5. **Open your browser**
+6. **Open** [http://localhost:3000](http://localhost:3000)
 
-   Navigate to [http://localhost:3000](http://localhost:3000)
+## Demo Credentials
 
-## Default Login Credentials
+After running the seed script, use these credentials to login:
 
-After running the seed script:
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@example.com | password123 |
+| Manager | manager@example.com | password123 |
+| Staff | staff@example.com | password123 |
 
-- **Email**: admin@example.com
-- **Password**: admin123
+### Role Permissions
 
-**Important**: Change these credentials in production!
+| Feature | Admin | Manager | Staff |
+|---------|:-----:|:-------:|:-----:|
+| Dashboard | ✓ | ✓ | ✓ |
+| Products | ✓ | ✓ | ✓ |
+| Categories | ✓ | ✓ | ✓ |
+| Suppliers | ✓ | ✓ | ✓ |
+| Transactions | ✓ | ✓ | ✓ |
+| Purchase Orders | ✓ | ✓ | ✓ |
+| Reports | ✓ | ✓ | ✓ |
+| User Management | ✓ | ✓ | ✗ |
 
-## Available Scripts
+## Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run seed` - Seed database with sample data
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run linter |
+| `pnpm seed` | Seed database with sample data |
 
-## Features Overview
+## Project Structure
 
-### Dashboard
-- Total products count
-- Low stock alerts
-- Inventory value calculation
-- Recent transactions
-- Low stock product list
-
-### Products Module
-- Create, read, update, delete products
-- Search by name or SKU
-- Category and supplier assignment
-- Stock level tracking
-- Reorder level alerts
-- Multiple unit types (pieces, kg, liters)
-- Active/inactive status
-
-### Categories Module
-- Simple CRUD operations
-- Product categorization
-
-### Suppliers Module
-- Supplier information management
-- Contact details
-- Active/inactive status
-
-### Transactions Module
-- Stock-in (receiving inventory)
-- Stock-out (selling/removing inventory)
-- Adjustments (inventory corrections)
-- Transaction history with filters
-- Automatic stock updates
-
-### Reports Module
-- Inventory status report
-- Low stock alerts report
-- Transaction history report
-- Print functionality for all reports
-
-## Troubleshooting
-
-**MongoDB Connection Issues**:
-- Verify MongoDB is running locally or connection string is correct
-- Check firewall settings for MongoDB Atlas
-
-**Authentication Issues**:
-- Ensure AUTH_SECRET is set in .env.local
-- Clear browser cookies and try again
-
-**Build Errors**:
-- Delete `.next` folder and `node_modules`
-- Run `npm install` again
-- Try `npm run build`
+```
+nextgen-ims/
+├── app/                    # Next.js App Router pages
+│   ├── dashboard/          # Dashboard and feature pages
+│   ├── login/              # Authentication pages
+│   └── api/                # API routes
+├── components/             # React components
+│   ├── ui/                 # ShadCN UI components
+│   └── ...                 # Feature components
+├── lib/
+│   ├── actions/            # Server actions
+│   ├── models/             # Mongoose models
+│   └── db/                 # Database connection
+├── scripts/                # Utility scripts
+└── types/                  # TypeScript definitions
+```
 
 ## License
 
 MIT License
+
+---
+
+Built with Next.js and MongoDB
+Creadit: Rakibul Hassan
