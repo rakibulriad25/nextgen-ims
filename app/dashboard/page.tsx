@@ -13,6 +13,12 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { DashboardClient } from './dashboard-client'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dashboard - NextGen IMS',
+  description: 'View your inventory overview, stock levels, purchase orders, and analytics at a glance.',
+}
 import { TransactionChart } from './transaction-chart'
 import { LowStockGauge } from './low-stock-gauge'
 import { TopProductsChart } from './top-products-chart'

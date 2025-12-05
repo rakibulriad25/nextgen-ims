@@ -35,13 +35,14 @@ async function seed() {
     // Create users with different roles
     const hashedPassword = await bcrypt.hash('password123', 10)
 
-    const users = await User.create(
+    const usersArray = await User.create(
       seedData.users.map((userData: any) => ({
         ...userData,
         password: hashedPassword,
       }))
     )
 
+    const users = Array.isArray(usersArray) ? usersArray : [usersArray]
     const [admin, manager, staff] = users
     console.log('Created users (admin, manager, staff)')
 

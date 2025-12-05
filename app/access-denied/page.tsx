@@ -1,5 +1,11 @@
 import { ShieldAlert } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Access Denied - NextGen IMS',
+  description: 'You do not have permission to access this page.',
+}
 
 export default function AccessDeniedPage() {
   return (

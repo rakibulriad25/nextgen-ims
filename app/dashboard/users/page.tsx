@@ -1,6 +1,12 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { UsersClient } from './users-client'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'User Management - NextGen IMS',
+  description: 'Manage user accounts, roles, and permissions for your inventory management system.',
+}
 
 export default async function UsersPage() {
   const session = await auth()
