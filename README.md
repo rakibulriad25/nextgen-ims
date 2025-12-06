@@ -1,10 +1,10 @@
 # NextGen IMS
 
-**AI-Driven Inventory Management System with Predictive Stock Analytics**
+**AI-Driven Inventory System with Predictive Stock Analytics**
 
 https://nextgen-ims.vercel.app/
 
-A modern, full-featured inventory management system built for businesses that need real-time tracking, automated workflows, and data-driven insights.
+A modern, full-featured inventory system built for businesses that need real-time tracking, automated workflows, and data-driven insights.
 
 ## Features
 
@@ -36,7 +36,7 @@ A modern, full-featured inventory management system built for businesses that ne
 ### Prerequisites
 
 - Node.js 18+
-- pnpm (recommended) or npm
+- pnpm
 - MongoDB (local or Atlas)
 
 ### Installation

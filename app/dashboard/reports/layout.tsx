@@ -1,0 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Reports - NextGen IMS',
+  description: 'Generate inventory reports, analytics, and business insights.',
+}
+
+export default function ReportsLayout({ children }: { children: React.ReactNode }) {
+  return children
+}

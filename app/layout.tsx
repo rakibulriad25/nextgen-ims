@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Inventory Management System',
-  description: 'Manage your inventory efficiently',
+  title: 'NextGen IMS',
+  description: 'AI-Driven Inventory System with Predictive Stock Analytics',
 }
 
 export default function RootLayout({
