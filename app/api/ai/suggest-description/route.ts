@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const { text } = await generateText({
       model: gateway('google/gemini-2.0-flash-lite'),
-      prompt: `Generate a concise, professional product description (2-3 sentences, max 150 characters) for an inventory management system.
+      prompt: `Generate a concise, professional product description (3-4 sentences, max 200 characters).
 Product Name: ${productName}
 ${categoryName ? `Category: ${categoryName}` : ''}
 
